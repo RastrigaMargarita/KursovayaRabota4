@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
 import requests
-
+import os
 from vacancy import Vacancy
 
 
 class SourceAPI(ABC):
-
-    @abstractmethod
-    def __init__(self):
-        pass
 
     @abstractmethod
     def get_vacancies(self, keyword, json_saver):
@@ -18,8 +14,8 @@ class SourceAPI(ABC):
 class HeadHunterAPI(SourceAPI):
     """Класс для загрузки вакансий с hh.ru"""
 
-    def __init__(self, ):
-        self.url = 'https://api.hh.ru/vacancies'
+    def __init__(self, url):
+        self.url = url
         self.headers = {'User-Agent': 'School task(rastrm@mail.ru)'}
 
     def get_vacancies(self, keyword, json_saver):
@@ -31,7 +27,7 @@ class HeadHunterAPI(SourceAPI):
         response = requests.get(self.url, headers=self.headers, params=param)
 
         if response.status_code != 200:
-            raise Exception("Не могу получить вакансии")
+           raise Exception("Не могу получить вакансии")
         else:
             list_of_vacancies = []
             for vacancy_item in response.json()["items"]:
@@ -44,17 +40,18 @@ class HeadHunterAPI(SourceAPI):
                                                  vacancy_item['snippet']['responsibility'],
                                                  vacancy_item['employer']['name']))
 
-            return list_of_vacancies
+        return list_of_vacancies
 
 
 class SuperJobAPI(SourceAPI):
     """Класс для загрузки вакансий с rabota.ru"""
 
-    def __init__(self, ):
-        self.url = 'https://api.superjob.ru/2.0/vacancies/'
+    def __init__(self, url):
+        self.url = url
+
+        # Получение значения переменной окружения
         self.headers = {
-            'X-Api-App-Id':
-                'v3.r.13770101.c42aca0a79d66f7e7c83ca940cca366b0f08f7e3.4dfeb86a210ff0e5cce5e3de633886a8de559f61'}
+            'X-Api-App-Id': os.environ['X-Api-App-Id']}
 
     def get_vacancies(self, keyword, json_saver):
         """Функция загружает вакансии с сайта HeadHunter по ключевому слову
