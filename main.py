@@ -1,13 +1,13 @@
 from json_saver import JSONSaver
 from source_api import HeadHunterAPI, SuperJobAPI
 from vacancy import Vacancy
-
-PLATFORMS = [HeadHunterAPI(), SuperJobAPI()]
+import config
 
 
 def user_interaction():
     """Функция для взаимодействия с пользователем"""
     json_saver = JSONSaver()
+    PLATFORMS = [HeadHunterAPI(config.HH_API_URL), SuperJobAPI(config.SJ_API_URL)]
 
     user_choise = ""
     while user_choise != '4':
@@ -21,8 +21,8 @@ def user_interaction():
         if user_choise == '0':
             key_word = input("Введите ключевое слово:")
             list_of_vacancies = []
-            for x in PLATFORMS:
-                list_of_vacancies = list_of_vacancies + x.get_vacancies(key_word, json_saver)
+            for PLATFORM in PLATFORMS:
+                list_of_vacancies = list_of_vacancies + PLATFORM.get_vacancies(key_word, json_saver)
             json_saver.save_vacancies(list_of_vacancies)
             print(f"Загружено {len(list_of_vacancies)} вакансий")
 
